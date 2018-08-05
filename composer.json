@@ -1,0 +1,23 @@
+{
+  "name": "mr-jiawen/pay",
+  "description": "This is pay package that such as ali pay、weChat pay",
+  "authors": [
+    {
+      "name": "mr.wen",
+      "email": "604989282@qq.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "ext-openssl": "*",
+    "ext-simplexml": "*",
+    "symfony/http-foundation": "^3.0|^4.0",
+    "guzzlehttp/guzzle": "^6.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jw\\Pay\\": "src"
+    }
+  },
+  "license": "MIT"
+}
