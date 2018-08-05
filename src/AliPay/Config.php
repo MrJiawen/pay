@@ -3,6 +3,7 @@
 namespace Jw\Pay\AliPay;
 
 use Jw\Pay\AliPay\Contracts\AliPayType;
+use Jw\Pay\AliPay\Request\AliPayOfWap;
 use Jw\Pay\AliPay\Request\AliPayOfWeb;
 use Jw\Pay\Exceptions\Exception;
 use Jw\Pay\Exceptions\InvalidConfigException;
@@ -87,6 +88,8 @@ class Config
         switch ($aliPayType->getTypeName()) {
             case AliPayOfWeb::class:
                 return 'alipay.trade.page.pay';
+            case AliPayOfWap::class:
+                return 'alipay.trade.wap.pay';
             default:
                 return new Exception('system error');
         }
@@ -103,6 +106,8 @@ class Config
         switch ($aliPayType->getTypeName()) {
             case AliPayOfWeb::class:
                 return 'FAST_INSTANT_TRADE_PAY';
+            case AliPayOfWap::class:
+                return 'QUICK_WAP_WAY';
             default:
                 return new Exception('system error');
         }
