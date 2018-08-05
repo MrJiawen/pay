@@ -78,4 +78,36 @@ class Support
     {
         return ArrayTool::encoding((array)$data, $to, $from);
     }
+
+    /**
+     * Verfiy sign.
+     * @param array $data
+     * @param null $publicKey
+     * @param bool $sync
+     * @param null $sign
+     * @return bool
+     * @throws InvalidConfigException
+     * @Author jiaWen.chen
+     */
+    public static function verifySign(array $data, $publicKey = null, $sync = false, $sign = null): bool
+    {
+        if (is_null($publicKey)) {
+            throw new InvalidConfigException('Missing Alipay Config -- [ali_public_key]');
+        }
+
+        if (StringTool::endsWith($publicKey, '.pem')) {
+            $publicKey = openssl_pkey_get_public($publicKey);
+        } else {
+            $publicKey = "-----BEGIN PUBLIC KEY-----\n".
+                wordwrap($publicKey, 64, "\n", true).
+                "\n-----END PUBLIC KEY-----";
+        }
+
+        $sign = $sign ?? $data['sign'];
+
+        $toVerify = $sync ? mb_convert_encoding(json_encode($data, JSON_UNESCAPED_UNICODE), 'gb2312', 'utf-8') :
+            self::getSignContent($data, true);
+
+        return openssl_verify($toVerify, base64_decode($sign), $publicKey, OPENSSL_ALGO_SHA256) === 1;
+    }
 }

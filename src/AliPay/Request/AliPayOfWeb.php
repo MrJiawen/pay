@@ -70,6 +70,8 @@ class AliPayOfWeb implements AliPayType
          */
         $this->sendBefore($param);
 
+        \Log::debug('Paying A Web/Wap Order:', ['gateway' => $this->config->gateway, 'payLoad' => $this->config->payLoad]);
+
         return $this->buildPayHtml($this->config->gateway, $this->config->payLoad);
     }
 

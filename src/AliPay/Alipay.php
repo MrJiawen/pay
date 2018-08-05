@@ -2,8 +2,11 @@
 
 namespace Jw\Pay\AliPay;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Jw\Pay\AliPay\Contracts\AliPayType;
 use Jw\Pay\AliPay\Library\Support;
+use Jw\Pay\Exceptions\InvalidSignException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -47,5 +50,32 @@ class Alipay
     public function pay($param)
     {
         return $this->payType->sendToPay($param);
+    }
+
+    /**
+     * Verfiy sign.
+     * @param null $content
+     * @param bool $refund
+     * @return Collection
+     * @throws InvalidSignException
+     * @Author jiaWen.chen
+     */
+    public function verify($content = null, $refund = false): Collection
+    {
+        $request = Request::createFromGlobals();
+
+        $data = $request->request->count() > 0 ? $request->request->all() : $request->query->all();
+
+        $data = Support::encoding($data, 'utf-8', $data['charset'] ?? 'gb2312');
+
+        \Log::debug('Receive Alipay Request:', $data);
+
+        if (Support::verifySign($data, $this->config->get('ali_public_key'))) {
+            return new Collection($data);
+        }
+
+        \Log::warning('Alipay Sign Verify FAILED', $data);
+
+        throw new InvalidSignException('Alipay Sign Verify FAILED', $data);
     }
 }
