@@ -39,7 +39,7 @@ class AliPayOfWeb implements AliPayType
      */
     public function getTypeName()
     {
-        return self::class;
+        return get_class($this);
     }
 
     /**

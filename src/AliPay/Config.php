@@ -125,6 +125,7 @@ class Config
     {
         switch ($aliPayType->getTypeName()) {
             case AliPayOfWeb::class:
+            case AliPayOfWap::class:
                 $keys = [
                     'out_trade_no',     //商户订单号，64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
                     'product_code',     // 销售产品码，与支付宝签约的产品码名称。 注：目前仅支持FAST_INSTANT_TRADE_PAY
@@ -155,6 +156,7 @@ class Config
     {
         switch ($aliPayType->getTypeName()) {
             case AliPayOfWeb::class:
+            case AliPayOfWap::class:
                 return [
                     'dev' => 'https://openapi.alipaydev.com/gateway.do',
                     'pro' => 'https://openapi.alipay.com/gateway.do'
