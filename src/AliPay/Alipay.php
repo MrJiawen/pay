@@ -33,12 +33,14 @@ class Alipay
      * @param Config $config
      * @param AliPayType $aliPayType
      */
-    public function __construct(Config $config, AliPayType $aliPayType)
+    public function __construct(Config $config, AliPayType $aliPayType = null)
     {
         $this->config = $config;
 
         $this->payType = $aliPayType;
-        $this->payType->setConfig($this->config);
+        if (!empty($aliPayType)) {
+            $this->payType->setConfig($this->config);
+        }
     }
 
     /**
@@ -70,12 +72,22 @@ class Alipay
 
         \Log::debug('Receive Alipay Request:', $data);
 
-        if (Support::verifySign($data, $this->config->get('ali_public_key'))) {
+        if (Support::verifySign($data, $this->config->config['ali_public_key'])) {
             return new Collection($data);
         }
 
         \Log::warning('Alipay Sign Verify FAILED', $data);
 
         throw new InvalidSignException('Alipay Sign Verify FAILED', $data);
+    }
+
+    /**
+     * Reply success to alipay.
+     * @return Response
+     * @Author jiaWen.chen
+     */
+    public function success(): Response
+    {
+        return Response::create('success');
     }
 }
