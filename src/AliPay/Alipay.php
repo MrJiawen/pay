@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Jw\Pay\AliPay\Contracts\AliPayType;
 use Jw\Pay\AliPay\Library\Support;
+use Jw\Pay\AliPay\Request\AliPayForQuery;
 use Jw\Pay\Exceptions\InvalidSignException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -89,5 +90,16 @@ class Alipay
     public function success(): Response
     {
         return Response::create('success');
+    }
+
+    /**
+     * 查询账单
+     * @param string $outTradeNo
+     * @return Collection
+     * @Author jiaWen.chen
+     */
+    public function query(string $outTradeNo)
+    {
+        return AliPayForQuery::getInstance($this->config)->query($outTradeNo);
     }
 }

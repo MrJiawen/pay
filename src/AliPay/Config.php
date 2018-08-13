@@ -3,6 +3,7 @@
 namespace Jw\Pay\AliPay;
 
 use Jw\Pay\AliPay\Contracts\AliPayType;
+use Jw\Pay\AliPay\Request\AliPayForQuery;
 use Jw\Pay\AliPay\Request\AliPayOfWap;
 use Jw\Pay\AliPay\Request\AliPayOfWeb;
 use Jw\Pay\Exceptions\Exception;
@@ -79,17 +80,20 @@ class Config
 
     /**
      *  获取方法
-     * @param AliPayType $aliPayType
+     * @param  $aliPay
      * @return string
      * @Author jiaWen.chen
      */
-    public function getMethod(AliPayType $aliPayType): string
+    public function getMethod($aliPay): string
     {
-        switch ($aliPayType->getTypeName()) {
+        switch ($aliPay->getTypeName()) {
             case AliPayOfWeb::class:
                 return 'alipay.trade.page.pay';
             case AliPayOfWap::class:
                 return 'alipay.trade.wap.pay';
+
+            case AliPayForQuery::class:
+                return 'alipay.trade.query';
             default:
                 return new Exception('system error');
         }
@@ -148,15 +152,16 @@ class Config
 
     /**
      * 获取网关
-     * @param AliPayType $aliPayType
+     * @param  $aliPay
      * @return Exception|string
      * @Author jiaWen.chen
      */
-    public function getGateway(AliPayType $aliPayType): string
+    public function getGateway($aliPay): string
     {
-        switch ($aliPayType->getTypeName()) {
+        switch ($aliPay->getTypeName()) {
             case AliPayOfWeb::class:
             case AliPayOfWap::class:
+            case AliPayForQuery::class:
                 return [
                     'dev' => 'https://openapi.alipaydev.com/gateway.do',
                     'pro' => 'https://openapi.alipay.com/gateway.do'
