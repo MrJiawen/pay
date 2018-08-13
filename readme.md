@@ -34,21 +34,22 @@ $alipay = new Alipay($config,new AliPayOfWeb());
     * 等等，只要是继承了 AliPayType 接口都可以 
 
 ### 02. web 支付
-```angular2html
-$alipay = new Alipay($config,new AliPayOfWeb());
+```php
+$alipay = new Alipay($this->config, new AliPayOfWap());
+
 return $alipay->pay([
-    "out_trade_no" => date('Y-m-d H:i:s').time(),
+    "out_trade_no" => time(),
     'total_amount' => 1,
     'subject' => 'this is test '
 ]);
 ``` 
 ### 03. 异步验证
-```angular2html
+```php
 public function notify()
 {
-    $alipay = new Alipay($config)
-
-    try{
+    $alipay = new Alipay($this->config);
+    
+    try {
         $data = $alipay->verify(); // 是的，验签就这么简单！
 
         // 请自行对 trade_status 进行判断及其它逻辑进行判断，在支付宝的业务通知中，只有交易通知状态为 TRADE_SUCCESS 或 TRADE_FINISHED 时，支付宝才会认定为买家付款成功。
@@ -67,11 +68,12 @@ public function notify()
 }
 ```
 ### 04. 同步验证
-```angular2html
-public function return()
+```php
+public function returnTo()
 {
-    $data = $alipay = new Alipay($config) // 是的，验签就这么简单！
-    
+    $alipay = new Alipay($this->config); // 是的，验签就这么简单！
+    $data = $alipay->verify();
+
     // 订单号：$data->out_trade_no
     // 支付宝交易号：$data->trade_no
     // 订单总金额：$data->total_amount

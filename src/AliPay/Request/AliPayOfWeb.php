@@ -64,7 +64,8 @@ class AliPayOfWeb implements AliPayType
 
         // 3. 对 biz_content 必填值 验证
         $this->config->checkOfBizContent($param, $this);
-
+        $param['out_trade_no'] = (string)$param['out_trade_no'];
+        $param['out_trade_no'] = round($param['out_trade_no'], 2);
         /**
          * 2. 对整个 payLoad 进行处理
          */
