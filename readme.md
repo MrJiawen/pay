@@ -7,7 +7,7 @@
 并且还需要支持线上正常生产， 线下正常开发， 让两者进行解耦合，互不影响
 
 # 第一部分 ： 支付宝支付
-### 01. 初始化支付宝实例
+### 1.1. 初始化支付宝实例
 首选需要创建一个 Config 对象，他具备 verification 功能， 自动检测配置参数，如果出现配置异常，给出报错信息并且提示：
 ```
 $config = new Config([
@@ -33,7 +33,7 @@ $alipay = new Alipay($config,new AliPayOfWeb());
     * AliPayOfWap;
     * 等等，只要是继承了 AliPayType 接口都可以 
 
-### 02. web 支付
+### 1.2. web 支付
 ```php
 $alipay = new Alipay($this->config, new AliPayOfWap());
 
@@ -43,7 +43,7 @@ return $alipay->pay([
     'subject' => 'this is test '
 ]);
 ``` 
-### 03. 异步验证
+### 1.3. 异步验证
 ```php
 public function notify()
 {
@@ -67,7 +67,7 @@ public function notify()
     return $alipay->success();// laravel 框架中请直接 `return $alipay->success()`
 }
 ```
-### 04. 同步验证
+### 1.4. 同步验证
 ```php
 public function returnTo()
 {
@@ -77,5 +77,35 @@ public function returnTo()
     // 订单号：$data->out_trade_no
     // 支付宝交易号：$data->trade_no
     // 订单总金额：$data->total_amount
+}
+```
+### 1.5. 订单的查询
+```php
+public function query()
+{
+    $alipay = new Alipay($this->config);
+    $result = $alipay->query("1534132785");
+ 
+    // ...
+}
+```
+## 第二部分 支付宝授权
+### 2.1 获取app_auth_code
+```php
+public function get_auth_code()
+{
+    $alipay = new Alipay($this->config); // 是的，验签就这么简单！
+    // 设置好配置参数 ，当用户完成授权交互操作后，自动跳转到回调函数里，并且携带 app_auth_code
+    return $alipay->getAuthCode();  # 这里是重定向 去授权
+}
+```
+### 2.2 获取 app_access_token
+```php
+public function notify_auth(Request $request)
+{
+    $alipay = new Alipay($this->config); // 是的，验签就这么简单！
+    $response = $alipay->getAccessToken($request['app_auth_code']);
+
+    //...里面包含 app_access_token
 }
 ```
