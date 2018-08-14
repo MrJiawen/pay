@@ -3,6 +3,8 @@
 namespace Jw\Pay\AliPay;
 
 use Jw\Pay\AliPay\Contracts\AliPayType;
+use Jw\Pay\AliPay\Request\AliPayForGetAccessToken;
+use Jw\Pay\AliPay\Request\AliPayForGetAuthCode;
 use Jw\Pay\AliPay\Request\AliPayForQuery;
 use Jw\Pay\AliPay\Request\AliPayOfWap;
 use Jw\Pay\AliPay\Request\AliPayOfWeb;
@@ -94,6 +96,8 @@ class Config
 
             case AliPayForQuery::class:
                 return 'alipay.trade.query';
+            case AliPayForGetAccessToken::class:
+                return 'alipay.open.auth.token.app';
             default:
                 return new Exception('system error');
         }
@@ -162,9 +166,15 @@ class Config
             case AliPayOfWeb::class:
             case AliPayOfWap::class:
             case AliPayForQuery::class:
+            case AliPayForGetAccessToken::class:
                 return [
                     'dev' => 'https://openapi.alipaydev.com/gateway.do',
                     'pro' => 'https://openapi.alipay.com/gateway.do'
+                ][$this->config['mode']];
+            case AliPayForGetAuthCode::class:
+                return [
+                    'dev' => 'https://openauth.alipaydev.com/oauth2/appToAppAuth.htm',
+                    'pro' => 'https://openauth.alipay.com/oauth2/appToAppAuth.htm'
                 ][$this->config['mode']];
             default:
                 return new Exception('system error');

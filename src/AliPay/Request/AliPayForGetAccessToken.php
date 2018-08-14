@@ -7,26 +7,32 @@ use Jw\Pay\AliPay\Library\AliRequestAPI;
 use Jw\Pay\AliPay\Library\Support;
 
 /**
- * 单例查询
- * Class AliPayForQuery
+ * 单例认证
+ * Class AliPayForGetAccessToken
  * @package Jw\Pay\AliPay\Request
  */
-class AliPayForQuery
+class AliPayForGetAccessToken
 {
     use TraitAliRequestApi;
 
     /**
-     * handle query
-     * @Author jiaWen.chen
-     * @param String $outTradeNo
+     * handle method
+     * @param $appAuthCode
      * @return \Illuminate\Support\Collection
+     * @Author jiaWen.chen
      */
-    public function query(String $outTradeNo)
+    public function handle($appAuthCode)
     {
+        $this->config->payLoad = array_only($this->config->payLoad,
+            ['app_id', 'method', 'format', 'charset', 'sign_type', 'sign', 'timestamp', 'version', 'app_auth_token','biz_content']
+        );
+
         $this->config->payLoad['method'] = $this->config->getMethod($this);
+        $this->config->payLoad['grant_type'] = $this->config->getMethod($this);
 
         $bizContent = [
-            'out_trade_no' => (string)$outTradeNo
+            'grant_type' => 'authorization_code',
+            'code' => (string)$appAuthCode
         ];
         $this->config->payLoad['biz_content'] = json_encode($bizContent);
 
@@ -34,10 +40,12 @@ class AliPayForQuery
             $this->config->payLoad,
             $this->config->config['seller_private_key']
         );
-        $this->config->gateway = $this->config->getGateWay($this);
+
+        $this->config->gateway = $this->config->getGateway($this);
 
         return AliRequestAPI::getInstance($this->config)->aliPayRequest(
             $this->config->gateway, $this->config->payLoad
         );
+
     }
 }

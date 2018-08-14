@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Jw\Pay\AliPay\Contracts\AliPayType;
 use Jw\Pay\AliPay\Library\Support;
+use Jw\Pay\AliPay\Request\AliPayForGetAccessToken;
+use Jw\Pay\AliPay\Request\AliPayForGetAuthCode;
 use Jw\Pay\AliPay\Request\AliPayForQuery;
 use Jw\Pay\Exceptions\InvalidSignException;
 use Symfony\Component\HttpFoundation\Response;
@@ -93,7 +95,7 @@ class Alipay
     }
 
     /**
-     * 查询账单
+     * 查询订单
      * @param string $outTradeNo
      * @return Collection
      * @Author jiaWen.chen
@@ -101,5 +103,26 @@ class Alipay
     public function query(string $outTradeNo)
     {
         return AliPayForQuery::getInstance($this->config)->query($outTradeNo);
+    }
+
+    /**
+     * 用户授权第一步 ： 获取 auth_code
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @Author jiaWen.chen
+     */
+    public function getAuthCode()
+    {
+        return AliPayForGetAuthCode::getInstance($this->config)->handle();
+    }
+
+    /**
+     * 用户授权的第二部 ： 使用返回的 auth_code 换取 access_token
+     * @Author jiaWen.chen
+     * @param string $appAuthCode
+     * @return void
+     */
+    public function getAccessToken(string $appAuthCode)
+    {
+        return AliPayForGetAccessToken::getInstance($this->config)->handle($appAuthCode);
     }
 }
