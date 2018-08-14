@@ -49,12 +49,13 @@ class Alipay
     /**
      * 进行支付
      * @param $param
+     * @param string $appAuthToken
      * @return mixed
      * @Author jiaWen.chen
      */
-    public function pay($param)
+    public function pay($param, $appAuthToken = '')
     {
-        return $this->payType->sendToPay($param);
+        return $this->payType->sendToPay($param, $appAuthToken);
     }
 
     /**

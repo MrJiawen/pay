@@ -2,23 +2,32 @@
 
 namespace Jw\Pay\AliPay\Request;
 
-use Closure;
 use Jw\Pay\AliPay\Config;
 use Jw\Pay\AliPay\Contracts\AliPayType;
+use Jw\Pay\AliPay\Library\AliRequestAPI;
 use Jw\Pay\AliPay\Library\Support;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * web 支付方式(电脑网站支付产品)
  * Class AliPayOfWeb
  * @package Jw\Pay\AliPay\Library
  */
-class AliPayOfWeb implements AliPayType
+class AliPayForScan implements AliPayType
 {
     /**
      * @var
      */
     protected $config;
+
+    /**
+     * 支付类型实际名称
+     * @return mixed
+     * @Author jiaWen.chen
+     */
+    public function getTypeName()
+    {
+        return get_class($this);
+    }
 
     /**
      * 获取配置类
@@ -32,23 +41,13 @@ class AliPayOfWeb implements AliPayType
     }
 
     /**
-     * 获取支付类型name
-     * @return string
-     * @Author jiaWen.chen
-     */
-    public function getTypeName()
-    {
-        return get_class($this);
-    }
-
-    /**
      * 处理支付行为
-     * @param array $param 对应手册中 biz_content 参数
-     * @param Closure|null $callback
+     * @param array $param
+     * @param string $appAuthToken
      * @return mixed
      * @Author jiaWen.chen
      */
-    public function sendToPay(array $param, Closure $callback = null)
+    public function sendToPay(array $param,string $appAuthToken = '')
     {
         /**
          *  1. 支付之前对数据，进行加工处理
@@ -65,23 +64,32 @@ class AliPayOfWeb implements AliPayType
         $this->config->checkOfBizContent($param, $this);
         $param['out_trade_no'] = (string)$param['out_trade_no'];
         $param['total_amount'] = round($param['total_amount'], 2);
+
+        // 4.  为空就去除
+        if (empty($param['product_code'])) {
+            unset($param['product_code']);
+        }
         /**
          * 2. 对整个 payLoad 进行处理
          */
-        $this->sendBefore($param);
+        $this->sendBefore($param, $appAuthToken);
 
         \Log::debug('Paying A Web/Wap Order:', ['gateway' => $this->config->gateway, 'payLoad' => $this->config->payLoad]);
 
-        return $this->buildPayHtml($this->config->gateway, $this->config->payLoad);
+        return AliRequestAPI::getInstance($this->config)->aliPayRequest(
+            $this->config->gateway, $this->config->payLoad
+        );
     }
 
     /**
      * @Author jiaWen.chen
      * @param $bizContent
+     * @param $appAuthToken
      */
-    protected function sendBefore($bizContent)
+    protected function sendBefore($bizContent, $appAuthToken)
     {
         $this->config->payLoad['method'] = $this->config->getMethod($this);
+        $this->config->payLoad['app_auth_token'] = $appAuthToken;
         $this->config->payLoad['biz_content'] = json_encode($bizContent);
         $this->config->payLoad['sign'] = Support::generateSign(
             $this->config->payLoad,
@@ -89,25 +97,5 @@ class AliPayOfWeb implements AliPayType
         );
 
         $this->config->gateway = $this->config->getGateWay($this);
-    }
-
-    /**
-     * Build Html response.
-     * @param $endpoint
-     * @param $payload
-     * @return Response
-     * @Author jiaWen.chen
-     */
-    protected function buildPayHtml($endpoint, $payload): Response
-    {
-        $sHtml = "<form id='alipaysubmit' name='alipaysubmit' action='" . $endpoint . "' method='POST'>";
-        foreach ($payload as $key => $val) {
-            $val = str_replace("'", '&apos;', $val);
-            $sHtml .= "<input type='hidden' name='" . $key . "' value='" . $val . "'/>";
-        }
-        $sHtml .= "<input type='submit' value='ok' style='display:none;''></form>";
-        $sHtml .= "<script>document.forms['alipaysubmit'].submit();</script>";
-
-        return Response::create($sHtml);
     }
 }
