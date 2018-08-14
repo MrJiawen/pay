@@ -66,6 +66,11 @@ class AliPayOfWeb implements AliPayType
         $this->config->checkOfBizContent($param, $this);
         $param['out_trade_no'] = (string)$param['out_trade_no'];
         $param['out_trade_no'] = round($param['out_trade_no'], 2);
+
+        // 4.  为空就去除
+        if(empty( $param['product_code'])){
+            unset( $param['product_code'] );
+        }
         /**
          * 2. 对整个 payLoad 进行处理
          */
@@ -83,6 +88,7 @@ class AliPayOfWeb implements AliPayType
     protected function sendBefore($bizContent)
     {
         $this->config->payLoad['method'] = $this->config->getMethod($this);
+//        $this->config->payLoad['app_auth_token'] = '201808BBfea02b180c1f46fb9d31a69026a12X69';
         $this->config->payLoad['biz_content'] = json_encode($bizContent);
         $this->config->payLoad['sign'] = Support::generateSign(
             $this->config->payLoad,

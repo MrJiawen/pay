@@ -6,6 +6,7 @@ use Jw\Pay\AliPay\Contracts\AliPayType;
 use Jw\Pay\AliPay\Request\AliPayForGetAccessToken;
 use Jw\Pay\AliPay\Request\AliPayForGetAuthCode;
 use Jw\Pay\AliPay\Request\AliPayForQuery;
+use Jw\Pay\AliPay\Request\AliPayOfScan;
 use Jw\Pay\AliPay\Request\AliPayOfWap;
 use Jw\Pay\AliPay\Request\AliPayOfWeb;
 use Jw\Pay\Exceptions\Exception;
@@ -93,6 +94,8 @@ class Config
                 return 'alipay.trade.page.pay';
             case AliPayOfWap::class:
                 return 'alipay.trade.wap.pay';
+            case AliPayOfScan::class:
+                return 'alipay.trade.precreate';
 
             case AliPayForQuery::class:
                 return 'alipay.trade.query';
@@ -116,6 +119,8 @@ class Config
                 return 'FAST_INSTANT_TRADE_PAY';
             case AliPayOfWap::class:
                 return 'QUICK_WAP_WAY';
+            case AliPayOfScan::class:
+                return '';
             default:
                 return new Exception('system error');
         }
@@ -134,6 +139,7 @@ class Config
         switch ($aliPayType->getTypeName()) {
             case AliPayOfWeb::class:
             case AliPayOfWap::class:
+            case AliPayOfScan::class:
                 $keys = [
                     'out_trade_no',     //商户订单号，64个字符以内、可包含字母、数字、下划线；需保证在商户端不重复
                     'product_code',     // 销售产品码，与支付宝签约的产品码名称。 注：目前仅支持FAST_INSTANT_TRADE_PAY
@@ -167,6 +173,7 @@ class Config
             case AliPayOfWap::class:
             case AliPayForQuery::class:
             case AliPayForGetAccessToken::class:
+            case AliPayOfScan::class:
                 return [
                     'dev' => 'https://openapi.alipaydev.com/gateway.do',
                     'pro' => 'https://openapi.alipay.com/gateway.do'
